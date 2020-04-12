@@ -8,8 +8,8 @@ stats = {
         'avgDailyIncomePopulation': 0.71
     },
     'periodType': 'days',
-    'timeToElapse': 58,
-    'reportedCases': 674,
+    'timeToElapse': 38,
+    'reportedCases': 2747,
     'population': 66622705,
     'totalHospitalBeds': 1380614
 }
@@ -18,13 +18,14 @@ stats = {
 def requestedTimeFactorCalculator(periodType, timeToElapse):
     if periodType == 'days':
         days = timeToElapse
-        return 2 ^ int(days/3)
+        print(2 ** (int(days/3)))
+        return 2 ** int(days/3)
+    elif periodType == 'weeks':
+        days = timeToElapse * 7
+        return 2 ** int(days/3)
     elif periodType == 'months':
         days = timeToElapse * 30
-        return 2 ^ int(days/3)
-    elif periodType == 'years':
-        days = timeToElapse * 12 * 30
-        return 2 ^ int(days/3)
+        return 2 ** int(days/3)
     else:
         raise Exception(
             'Period should be days, months or years.'
@@ -34,15 +35,19 @@ def requestedTimeFactorCalculator(periodType, timeToElapse):
 def impactCalculator(reportedCases, requestedTimeFactor):
     currentlyInfected = reportedCases * 10
     infectionsByRequestedTime = currentlyInfected * requestedTimeFactor
+    severeCasesByRequestedTime = infectionsByRequestedTime * 0.15
     return dict(currentlyInfected=currentlyInfected,
-                infectionsByRequestedTime=infectionsByRequestedTime)
+                infectionsByRequestedTime=infectionsByRequestedTime,
+                severeCasesByRequestedTime=severeCasesByRequestedTime)
 
 
 def severeImpactCalculator(reportedCases, requestedTimeFactor):
     currentlyInfected = reportedCases * 50
     infectionsByRequestedTime = currentlyInfected * requestedTimeFactor
+    severeCasesByRequestedTime = infectionsByRequestedTime * 0.15
     return dict(currentlyInfected=currentlyInfected,
-                infectionsByRequestedTime=infectionsByRequestedTime)
+                infectionsByRequestedTime=infectionsByRequestedTime,
+                severeCasesByRequestedTime=severeCasesByRequestedTime)
 
 
 def estimator(data):
@@ -56,4 +61,4 @@ def estimator(data):
 
 
 if __name__ == '__main__':
-    print(json.dumps(estimator(stats)))
+    print(json.dumps(estimator(stats), indent=4))
