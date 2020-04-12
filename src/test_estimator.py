@@ -17,7 +17,7 @@ sample_data = {
 
 
 sample_output = {
-    'data': data,
+    'data': sample_data,
     'estimate': {
         'impact': {
             "currentlyInfected": 27470,
