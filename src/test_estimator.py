@@ -1,26 +1,29 @@
 import unittest
 from estimator import estimator
-data = {
+
+sample_data = {
     'region': {
         'name': 'Africa',
         'avgAge': 19.7,
-        'avgDailyIncomeInUSD': 5,
-        'avgDailyIncomePopulation': 0.71
+        'avgDailyIncomeInUSD': 4,
+        'avgDailyIncomePopulation': 0.73
     },
     'periodType': 'days',
     'timeToElapse': 38,
     'reportedCases': 2747,
-    'population': 66622705,
-    'totalHospitalBeds': 1380614
+    'population': 92931687,
+    'totalHospitalBeds': 678874
 }
 
-correct_output = {
+
+sample_output = {
     'data': data,
     'estimate': {
         'impact': {
             "currentlyInfected": 27470,
             "infectionsByRequestedTime": 112517120,
-            "severeCasesByRequestedTime": 16877568
+            "severeCasesByRequestedTime": 16877568,
+            "hospitalBedsByRequestedTime": -16639962,
         },
         'severeImpact': {
             "currentlyInfected": 137350,
@@ -34,8 +37,8 @@ correct_output = {
 class estimatorTestCase(unittest.TestCase):
     def test_estimator_output(self):
         self.maxDiff = None
-        self.output = estimator(data)
-        self.assertDictEqual(correct_output, self.output)
+        self.output = estimator(sample_data)
+        self.assertDictEqual(sample_output, self.output)
 
 
 if __name__ == "__main__":

@@ -1,24 +1,27 @@
 import json
+import logging
+
+print('being printed twice')
+logging.basicConfig(level=logging.DEBUG)
 
 stats = {
     'region': {
         'name': 'Africa',
         'avgAge': 19.7,
-        'avgDailyIncomeInUSD': 5,
-        'avgDailyIncomePopulation': 0.71
+        'avgDailyIncomeInUSD': 4,
+        'avgDailyIncomePopulation': 0.73
     },
     'periodType': 'days',
     'timeToElapse': 38,
     'reportedCases': 2747,
-    'population': 66622705,
-    'totalHospitalBeds': 1380614
+    'population': 92931687,
+    'totalHospitalBeds': 678874
 }
 
 
 def requestedTimeFactorCalculator(periodType, timeToElapse):
     if periodType == 'days':
         days = timeToElapse
-        print(2 ** (int(days/3)))
         return 2 ** int(days/3)
     elif periodType == 'weeks':
         days = timeToElapse * 7
@@ -32,33 +35,57 @@ def requestedTimeFactorCalculator(periodType, timeToElapse):
             '{} was given'.format(periodType))
 
 
-def impactCalculator(reportedCases, requestedTimeFactor):
-    currentlyInfected = reportedCases * 10
-    infectionsByRequestedTime = currentlyInfected * requestedTimeFactor
-    severeCasesByRequestedTime = int(infectionsByRequestedTime * 0.15)
-    return dict(currentlyInfected=currentlyInfected,
-                infectionsByRequestedTime=infectionsByRequestedTime,
-                severeCasesByRequestedTime=severeCasesByRequestedTime)
+def bedAvailabilityCalculator(totalHospitalBeds, severeCasesByRequestedTime):
+    occupied = int(totalHospitalBeds * 0.65)
+    available = totalHospitalBeds - occupied
+    availableForPatients = available - severeCasesByRequestedTime
+    return availableForPatients
+    logging.debug('availablebeds: {}'.format(available))
+    print('total:', totalHospitalBeds)
+    print('occupied:', occupied)
+    print('available:', available)
+    print('available for covid patients:', availableForPatients)
+    print('available plus occupied:', available + occupied)
 
 
-def severeImpactCalculator(reportedCases, requestedTimeFactor):
-    currentlyInfected = reportedCases * 50
-    infectionsByRequestedTime = currentlyInfected * requestedTimeFactor
+def impact(data, impactType):
+    reportedCases = data['reportedCases']
+    if impactType == 'normal':
+        currentlyInfected = reportedCases * 10
+    elif impactType == 'severe':
+        currentlyInfected = reportedCases * 50
+    else:
+        raise Exception('Unsupported impact type given')
+
+    totalBeds = data['totalHospitalBeds']
+    timeToElapse = data['timeToElapse']
+    timeFactor = requestedTimeFactorCalculator(
+        data['periodType'], data['timeToElapse'])
+    avgIncome = data['region']['avgDailyIncomeInUSD']
+    avgIncomePop = data['region']['avgDailyIncomePopulation']
+    infectionsByRequestedTime = currentlyInfected * timeFactor
     severeCasesByRequestedTime = int(infectionsByRequestedTime * 0.15)
+    hospitalBedsByRequestedTime = bedAvailabilityCalculator(
+        totalBeds, severeCasesByRequestedTime)
+    casesForICUByRequestedTime = int(infectionsByRequestedTime * 0.05)
+    casesForVentilators = int(infectionsByRequestedTime * 0.02)
+    dollarsInFlight = int((infectionsByRequestedTime *
+                           avgIncomePop * avgIncome) * timeToElapse)
     return dict(currentlyInfected=currentlyInfected,
                 infectionsByRequestedTime=infectionsByRequestedTime,
-                severeCasesByRequestedTime=severeCasesByRequestedTime)
+                severeCasesByRequestedTime=severeCasesByRequestedTime,
+                hospitalBedsByRequestedTime=hospitalBedsByRequestedTime,
+                casesForICUByRequestedTime=casesForICUByRequestedTime,
+                casesForVentilatorsByRequestedTime=casesForVentilators,
+                dollarsInFlight=dollarsInFlight)
 
 
 def estimator(data):
-    reportedCases = data['reportedCases']
-    timeFactor = requestedTimeFactorCalculator(
-        data['periodType'], data['timeToElapse'])
     data = {
         "data": data,
         "estimate": {
-            "impact": impactCalculator(reportedCases, timeFactor),
-            "severeImpact": severeImpactCalculator(reportedCases, timeFactor)
+            "impact": impact(data, 'normal'),
+            "severeImpact": impact(data, 'severe')
         }
     }
     return data
