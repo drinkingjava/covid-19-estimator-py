@@ -82,7 +82,7 @@ def impact(data, impactType):
 def estimator(data):
     data = {
         "data": data,
-        "estimate": {
+        "estimated": {
             "impact": impact(data, 'normal'),
             "severeImpact": impact(data, 'severe')
         }
