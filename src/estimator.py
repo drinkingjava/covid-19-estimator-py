@@ -35,7 +35,7 @@ def requestedTimeFactorCalculator(periodType, timeToElapse):
 def impactCalculator(reportedCases, requestedTimeFactor):
     currentlyInfected = reportedCases * 10
     infectionsByRequestedTime = currentlyInfected * requestedTimeFactor
-    severeCasesByRequestedTime = infectionsByRequestedTime * 0.15
+    severeCasesByRequestedTime = int(infectionsByRequestedTime * 0.15)
     return dict(currentlyInfected=currentlyInfected,
                 infectionsByRequestedTime=infectionsByRequestedTime,
                 severeCasesByRequestedTime=severeCasesByRequestedTime)
@@ -44,7 +44,7 @@ def impactCalculator(reportedCases, requestedTimeFactor):
 def severeImpactCalculator(reportedCases, requestedTimeFactor):
     currentlyInfected = reportedCases * 50
     infectionsByRequestedTime = currentlyInfected * requestedTimeFactor
-    severeCasesByRequestedTime = infectionsByRequestedTime * 0.15
+    severeCasesByRequestedTime = int(infectionsByRequestedTime * 0.15)
     return dict(currentlyInfected=currentlyInfected,
                 infectionsByRequestedTime=infectionsByRequestedTime,
                 severeCasesByRequestedTime=severeCasesByRequestedTime)
@@ -54,9 +54,13 @@ def estimator(data):
     reportedCases = data['reportedCases']
     timeFactor = requestedTimeFactorCalculator(
         data['periodType'], data['timeToElapse'])
-    data = dict(data=data,
-                impact=impactCalculator(reportedCases, timeFactor),
-                severeImpact=severeImpactCalculator(reportedCases, timeFactor))
+    data = {
+        "data": data,
+        "estimate": {
+            "impact": impactCalculator(reportedCases, timeFactor),
+            "severeImpact": severeImpactCalculator(reportedCases, timeFactor)
+        }
+    }
     return data
 
 
