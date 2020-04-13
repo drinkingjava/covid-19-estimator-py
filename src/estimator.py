@@ -1,8 +1,6 @@
 import json
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
-
 sample_data = {
     'region': {
         'name': 'Africa',
@@ -80,13 +78,6 @@ def bedAvailabilityCalculator(totalHospitalBeds, severeCasesByRequestedTime):
     occupied = totalHospitalBeds * 0.65
     available = totalHospitalBeds - occupied
     availableForPatients = available - severeCasesByRequestedTime
-    logging.debug('availablebeds: {}'.format(available))
-    print('total:', totalHospitalBeds)
-    print('severeCasesByRequestedTime: ', severeCasesByRequestedTime)
-    print('occupied:', occupied)
-    print('available:', available)
-    print('available for covid patients:', availableForPatients)
-    print('available plus occupied:', available + occupied)
     return int(availableForPatients)
 
 
@@ -137,7 +128,3 @@ def estimator(data):
         'severeImpact': impact(data, 'severe')
     }
     return data
-
-
-if __name__ == '__main__':
-    print(json.dumps(estimator(stats), indent=4))
