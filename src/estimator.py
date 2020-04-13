@@ -138,7 +138,3 @@ def estimator(data):
         'severeImpact': impact(data, 'severe')
     }
     return data
-
-
-if __name__ == '__main__':
-    print(json.dumps(estimator(stats), indent=4))
