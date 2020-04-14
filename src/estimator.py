@@ -14,6 +14,7 @@ sample_data = {
     'population': 92931687,
     'totalHospitalBeds': 678874
 }
+print(sample_data)
 
 stats = {
     'region': {
